@@ -26,6 +26,26 @@ module.exports = appInfo => {
     domainWhiteList:["*"],
   }
 
+  config.view = {
+    mapping:{'.html':'ejs'}
+  }
+
+  config.mysql = {
+    client: {
+      host : '127.0.0.1',
+      port : '3306',
+      user : 'root',
+      password : '@999ufo@',
+      // database : 'test',
+      database:'juejue-cost',
+    },
+    //  是否挂载到 app 上, 默认开启
+    app : true,
+    //  是否加载到 agent 上, 默认关闭
+    agent : false,
+  };
+
+
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
@@ -36,3 +56,5 @@ module.exports = appInfo => {
     ...userConfig,
   };
 };
+
+

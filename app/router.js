@@ -13,5 +13,10 @@ module.exports = app => {
   router.delete('/deleteUser',controller.home.deleteUser);
 
   // user 表
-  router.post('/register',controller.user.register);
+  router.post('/api/user/register',controller.user.register);
+  router.get("/api/user/getUser",controller.user.getUserByName); // ?name=xx
+
+  router.post("/api/user/login",controller.user.login); // json(username,password)
+
+  router.post("/api/user/test",controller.user.test);
 };

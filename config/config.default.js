@@ -28,7 +28,11 @@ module.exports = appInfo => {
 
   config.view = {
     mapping:{'.html':'ejs'}
-  }
+  };
+
+  config.jwt = {
+    secret:'ufo',
+  };
 
   config.mysql = {
     client: {

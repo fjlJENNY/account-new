@@ -23,13 +23,15 @@ class UserService extends Service{
     const {ctx,app} = this;
     //,createTime:new Date().getTime() || 失败
     try{
-      const result = await app.mysql.insert('user',{username,password,signature,avatar});
+      const result = await app.mysql.insert('user',{username,password,signature,avatar,createTime:new Date()});
       return result;
     }catch(e){
       console.log("register error :: ",e);
       throw e;
     }
   }
+
+
 }
 
 module.exports = UserService;

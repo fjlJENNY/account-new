@@ -6,6 +6,70 @@ const Controller = require('egg').Controller;
 const defaultAvatar = 'http://s.yezgea02.com/1615973940679/WeChat77d6d2ac093e247c361f0b8a7aeb6c2a.png';
 
 class UserController extends Controller{
+
+  // 查找用户列表
+  async userList(){
+    const {ctx} = this;
+    try{
+      const result = await ctx.service.user.userList();
+      ctx.body = {
+        code : 200,
+        data : result,
+        msg: "success"
+      }
+    }catch(e){
+      ctx.body = {
+        code: 500,
+        msg:"获取列表错误",
+        data:null
+      }
+    }
+  }
+
+
+  // 更新
+  async updateUser(){
+    const {ctx} = this;
+    const {id, signature , avatar} = ctx.request.body;
+    try{
+      const result = await ctx.service.user.updateUser({id,signature,avatar});
+      ctx.body = {
+        code : 200,
+        msg:'更新成功',
+        data:null,
+      }
+    }catch (e) {
+      ctx.body = {
+        code:500,
+        msg: "更新失败",
+        data: null,
+      }
+    }
+  }
+
+  // 删除
+  // @param id
+  async deleteUser(){
+    const {ctx} = this;
+    const {id} = ctx.request.query;
+    try{
+      const result = await ctx.service.user.deleteUser(id);
+      ctx.body = {
+        code : 200,
+        msg:"删除成功",
+        data:null,
+      }
+    }catch(e){
+      ctx.body = {
+        code : 500,
+        msg:"删除失败",
+        data:null,
+      }
+    }
+  }
+
+
+
   async getUserByName(){
     const {ctx} = this;
     const {name} = ctx.request.query;
@@ -27,6 +91,8 @@ class UserController extends Controller{
 
   // post
   // {username , password}
+  /*登录
+  * */
   async login(){
     const {ctx,app} = this;
     const {username,password} = ctx.request.body;
@@ -51,10 +117,10 @@ class UserController extends Controller{
 
 
     const token = app.jwt.sign({
-      id:userInfo.id,
+      id: userInfo.id,
       username:userInfo.username,
       exp: Math.floor(Date.now() / 1000 + 24 * 60 * 60),
-    },app.config.jwt.secret);
+    }, app.config.jwt.secret);
 
     ctx.body = {
       code:200,
@@ -70,8 +136,13 @@ class UserController extends Controller{
   async test(){
     const {ctx , app} = this;
     try{
-    const token = ctx.request.header.authorization;
+      let token = ctx.request.header.authorization;
+      console.log(token);
+      if(token){
+        token = token.slice('Bearer '.length)
+      }
       const decode = app.jwt.verify(token,app.config.jwt.secret);
+      console.log(decode)
       ctx.body = {
         code : 200,
         msg: "获取成功",
@@ -80,16 +151,18 @@ class UserController extends Controller{
         }
       }
     }catch (e) {
+      console.error(e);
       ctx.body = {
         code : 500,
         msg: "获取失败，token有问题",
-        data: null,
+        data: e,
       }
     }
 
   }
 
 
+  // 注册
   async register(){
     const {ctx} = this;
     const {username , password} = ctx.request.body;

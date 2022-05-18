@@ -6,9 +6,14 @@ const dayjs = require('dayjs')
 // 账单 service
 class BillService extends Service{
 
-    async billList(){
+    async billList(userId){
         const { ctx ,app } = this;
-        const sql = `select * from bill`;
+        let sql ;
+        if(userId){
+            sql = `select * from bill where user_id = ${userId}`;
+        }else{
+            sql = `select * from bill`;
+        }
         try{
             const result = await app.mysql.query(sql)
             return result;
@@ -64,6 +69,7 @@ class BillService extends Service{
                        typeId,
                        typeName,
                        remark,
+                       userId,
                    }){
         const {ctx , app} = this;
         // const sql = `Update bill SET `
@@ -77,7 +83,7 @@ class BillService extends Service{
                 type_name : typeName,
                 remark
             },{
-                where: { id } // TODO 如果是管理员修改 , userId 如何存在
+                where: { id  , user_id : userId } // TODO 如果是管理员修改 , userId 如何存在
             })
             return result;
         }catch(e){
@@ -85,10 +91,21 @@ class BillService extends Service{
         }
     }
 
-    async delBill(id){
+    async delBill({id,userId}){
         const {ctx , app} = this;
         try{
-            const result =   await app.mysql.delete('bill',{id})
+            const result =   await app.mysql.delete('bill',{id , user_id: userId })
+            return result
+        }catch(e){
+            throw e;
+        }
+    }
+
+    async detailBill({id , userId }){
+        const {ctx , app} = this;
+        try{
+            const sql = `select * from bill where id = ${id} and user_id = ${userId}`
+            const result =   await app.mysql.query(sql)
             return result
         }catch(e){
             throw e;

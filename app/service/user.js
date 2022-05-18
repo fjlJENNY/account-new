@@ -56,9 +56,9 @@ class UserService extends Service{
     const {ctx , app} = this;
     try{
       let result = await app.mysql.update('user',{
-        signature,avatar
+        signature, avatar
       },{
-        where: {id}
+        where: { id }
       });
       console.log('update user success ',result);
       return result;

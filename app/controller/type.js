@@ -5,7 +5,7 @@ const Controller = require('egg').Controller;
 class TypeController extends Controller{
     async addType(){
         const { ctx , app } = this;
-        const {name,type} = ctx.request.body;
+        const { name , type} = ctx.request.body;
         try{
             const uniqueResult = await ctx.service.type.findTypeByName({name});
 

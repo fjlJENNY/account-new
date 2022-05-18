@@ -3,6 +3,8 @@
 
 const Controller = require('egg').Controller;
 
+const { parseToken } = require("../../utils/index")
+
 const defaultAvatar = 'http://s.yezgea02.com/1615973940679/WeChat77d6d2ac093e247c361f0b8a7aeb6c2a.png';
 
 class UserController extends Controller{
@@ -27,7 +29,9 @@ class UserController extends Controller{
   }
 
 
+
   // 更新
+  // signature
   async updateUser(){
     const {ctx} = this;
     const {id, signature , avatar} = ctx.request.body;
@@ -42,6 +46,29 @@ class UserController extends Controller{
       ctx.body = {
         code:500,
         msg: "更新失败",
+        data: null,
+      }
+    }
+  }
+
+  async updateUserSignature(){
+    const {ctx , app } = this;
+    const { signature } = ctx.request.body;
+
+    try{
+        const record = await parseToken(ctx,app)
+        const id = record.id;
+        const result = await ctx.service.user.updateUser({id,signature});
+        ctx.body = {
+          code : 200,
+          msg:'更新成功',
+          data:null,
+        }
+    }catch(e) {
+
+      ctx.body = {
+        code:500,
+        msg: "服务器错误",
         data: null,
       }
     }
@@ -87,6 +114,11 @@ class UserController extends Controller{
         data:null,
       }
     }
+  }
+
+  async resetPassword(){
+    const {ctx,app} = this;
+    // const {username,password} = ctx.request.body;
   }
 
   // post

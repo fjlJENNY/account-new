@@ -2,6 +2,12 @@
 
 const Controller = require('egg').Controller;
 
+const {parseToken} = require("../../utils/index")
+
+
+// TODO , bill List , 请求列表
+// TODO , 文件上传 , 密码修改  https://juejin.cn/book/6966551262766563328/section/6967227990732193799
+// TODO , 签名修改
 
 class BillController extends Controller{
     async addBill(){
@@ -12,9 +18,10 @@ class BillController extends Controller{
             typeId,
             typeName,
             remark,
-            userId,
         } = ctx.request.body;
         try{
+
+
             const uniqueResult = await ctx.service.type.findTypeByIdAndName({id:typeId,name:typeName});
 
             if(!uniqueResult.exist){
@@ -27,6 +34,11 @@ class BillController extends Controller{
                 }
                 return ;
             }
+
+            const record = await parseToken(ctx,app);
+            console.log('record ::: ',record)
+            const userId = record.id;
+            console.log('userId ' , userId)
 
             const result = await ctx.service.bill.addBill({
                 payType,
@@ -43,10 +55,39 @@ class BillController extends Controller{
                 data: null,
             }
         }catch(e){
+            console.log(e)
             ctx.body = {
                 code : 500,
                 msg: '添加失败',
                 data: e,
+            }
+        }
+    }
+
+    // 获取单个Bill
+    async detailBill(){
+        const { ctx , app } = this;
+        const { id } = ctx.request.query
+        try{
+
+
+            const record = await parseToken(ctx,app)
+            const userId = record.id;
+
+            const result = await ctx.service.bill.detailBill({id,userId});
+
+
+            ctx.body = {
+                code : 200,
+                msg: '请求成功',
+                data: result.length ? result[0] : null
+            }
+
+        }catch(e){
+            ctx.body = {
+                code : 500,
+                msg: '系统错误',
+                data: null,
             }
         }
     }
@@ -58,15 +99,23 @@ class BillController extends Controller{
             amount,
             typeId,
             typeName,
-            remark, } = ctx.request.body;
+            remark,
+        } = ctx.request.body;
         try{
+
+            const record = await parseToken(ctx,app)
+            const userId = record.id;
+
+
             const result = await ctx.service.bill.editBill({id,
                 payType,
                 amount,
                 typeId,
                 typeName,
-                remark,});
-            console.log(result)
+                remark,
+                userId
+            });
+
 
             if(result.affectedRows === 1){
                 ctx.body = {
@@ -97,8 +146,11 @@ class BillController extends Controller{
         const { ctx, app } = this;
 
         try{
-            const result = await ctx.service.bill.billList();
-            console.log('请求成功 :: ',result)
+            const record = await parseToken(ctx,app)
+            const userId = record.id;
+
+            const result = await ctx.service.bill.billList(userId);
+
             ctx.body = {
                 code : 200,
                 msg: '成功',
@@ -132,8 +184,11 @@ class BillController extends Controller{
             }
 
 
-            const result = await ctx.service.bill.delBill({id});
-            console.log('删除成功 :: ',result)
+            const record = await parseToken(ctx,app)
+            const userId = record.id;
+
+            const result = await ctx.service.bill.delBill({id , userId});
+
             ctx.body = {
                 code : 200,
                 msg: '删除成功',
